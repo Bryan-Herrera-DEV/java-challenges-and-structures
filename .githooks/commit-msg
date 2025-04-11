@@ -1,0 +1,26 @@
+#!/bin/bash
+
+commit_types="(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test|wip)"
+convetional_commit_regex="^${commit_types}(\([a-z \-]+\))?!?: .+$"
+
+commit_message=$(cat "$1")
+
+if [[ "$commit_message" =~ $convetional_commit_regex ]]; then
+  echo -e "\e[1;32m✔️ ¡Perfecto! El mensaje de commit cumple con el estándar de Conventional Commits.\e[0m"
+  exit 0
+fi
+
+# En caso de error
+echo -e "\n\e[1;31m❌ El mensaje de commit NO cumple con el estándar de Conventional Commits\e[0m"
+echo -e "\n\e[1;33m📝 Ejemplo válido:\e[0m"
+echo -e "  \e[1;36mfeat(login): agregar el botón 'recordarme'\e[0m"
+echo -e "\n\e[1;34m📚 Más información:\e[0m https://www.conventionalcommits.org/es/v1.0.0/#summary"
+echo -e "\n\e[1;35m🎯 Tipos de mensaje válidos:\e[0m ${commit_types}"
+echo -e "\n\e[1;33m📌 Formatos correctos:\e[0m"
+echo -e "  \e[1;36m<tipo>: <descripción>\e[0m  (máx. 50 caracteres)"
+echo -e "    \e[2mEjemplo:\e[0m \e[3mfix: error al validar usuario\e[0m"
+echo -e "  \e[1;36m<tipo>(<área>): <descripción>\e[0m  (área es opcional)"
+echo -e "    \e[2mEjemplo:\e[0m \e[3mfix(usuario): el correo electrónico está vacío en el perfil\e[0m"
+echo -e "\n\e[1;31m***********************************************************************\e[0m"
+
+exit 1

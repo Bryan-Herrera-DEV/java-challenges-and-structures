@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Obtiene el directorio del script
+DIR=$(dirname "$0")
+
+# Comprueba si existe un archivo pom.xml, para asegurarse de que está en un proyecto Maven
+if [ -s pom.xml ]; then
+
+    ## Construir el proyecto y ejecutar pruebas
+    echo "============= Fase de construcción con pruebas =============="
+    mvn clean test
+    if [[ $? != 0 ]]; then
+        echo -e "\e[31m>>>>>>> La construcción y las pruebas no fueron exitosas. Abortando commit... \e[0m"
+        exit 1
+    fi
+
+    ## Ejecutar Checkstyle
+    echo "============= Ejecutando Checkstyle =============="
+    mvn checkstyle:check
+    if [[ $? != 0 ]]; then
+        echo -e "\e[31m>>>>>>> Errores de Checkstyle encontrados. Abortando commit... \e[0m"
+        exit 1
+    fi
+
+    ## Ejecutar JaCoCo
+    echo "============= Generando reporte de cobertura de JaCoCo =============="
+    mvn jacoco:prepare-agent test jacoco:report
+    if [[ $? != 0 ]]; then
+        echo -e "\e[31m>>>>>>> Errores al generar el reporte de cobertura de JaCoCo. Abortando commit... \e[0m"
+        exit 1
+    fi
+
+    ## Ejecutar SpotBugs
+    echo "============= Ejecutando SpotBugs =============="
+    mvn spotbugs:check
+    if [[ $? != 0 ]]; then
+        echo -e "\e[31m>>>>>>> Errores de SpotBugs encontrados. Abortando commit... \e[0m"
+        exit 1
+    fi
+
+    echo -e "\e[32m¡Todos los checks pasaron exitosamente! Continuando con el commit...\e[0m"
+else
+    echo -e "\e[31mNo se encontró pom.xml en el directorio actual. Abortando script.\e[0m"
+    exit 1
+fi
